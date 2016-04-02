@@ -424,7 +424,8 @@ textarea {
 }
 
 body {
-  background-color: #ccc;
+  background-color: #f1f1f1;
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
 }
 ul {
   list-style: none;
@@ -432,18 +433,38 @@ ul {
 ul li {
   list-style: none;
 }
+.example {
+  margin: 100px 0;
+}
+.input-cont {
+  text-align: center;
+}
+.input-cont label {
+  font-size: 12px;
+}
+.input-cont .search-input {
+  margin-left: 10px;
+  background-color: #ddd;
+  border: none;
+  border-radius: 3px;
+  padding: 4px 10px;
+  outline: 0;
+  vertical-align: middle;
+}
 .simple-table-1 {
   width: 60%;
   margin: 50px auto;
 }
 .simple-table-1 .table-row-1 {
   display: flex;
-  border: 1px solid #aaa;
+  border: 1px solid #cacaca;
+  border-radius: 3px;
   padding: 0;
 }
 .simple-table-1 .table-row-1 li {
-  flex-grow: 1;
+  width: 33.333%;
   text-align: center;
   margin: 0 20px;
   padding: 10px;
+  color: #777;
 }
