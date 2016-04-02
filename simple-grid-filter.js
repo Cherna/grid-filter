@@ -1,5 +1,9 @@
 (function($) {
 
+  // Big to-do list:
+  // - Callbacks
+  // - Error reporting to console
+
   function SimpleGridFilter (options) {
 
     var defaults = {
@@ -10,6 +14,7 @@
 
     console.log(this.opts);
 
+    this.opts.container = '#' + this.opts.container;
     this.mainTable = $(this.opts.container);
     this.mainListItems = $(this.opts.container).find(this.opts.row);
     this.init(this.opts);

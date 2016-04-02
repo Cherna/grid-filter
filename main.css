@@ -451,17 +451,22 @@ ul li {
   outline: 0;
   vertical-align: middle;
 }
-.simple-table-1 {
-  width: 60%;
+.table {
+  width: 80%;
   margin: 50px auto;
 }
-.simple-table-1 .table-row-1 {
+.table .table-row {
   display: flex;
-  border: 1px solid #cacaca;
+  border-bottom: 1px solid #cacaca;
   border-radius: 3px;
   padding: 0;
+  margin: 0;
+  transition: background-color 0.18s ease;
 }
-.simple-table-1 .table-row-1 li {
+.table .table-row:hover {
+  background-color: #efefef;
+}
+.table .table-row li {
   width: 33.333%;
   text-align: center;
   margin: 0 20px;

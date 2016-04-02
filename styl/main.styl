@@ -24,14 +24,18 @@ ul
     outline 0
     vertical-align middle
 
-.simple-table-1
-  width 60%
+.table
+  width 80%
   margin 50px auto
-  .table-row-1
+  .table-row
     display flex
-    border 1px solid #cacaca
+    border-bottom 1px solid #cacaca
     border-radius 3px
     padding 0
+    margin 0
+    transition background-color 0.18s ease
+    &:hover
+      background-color #efefef
     li
       width 33.333%
       text-align center
