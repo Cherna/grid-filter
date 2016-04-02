@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jquery": "^2.2.2",
     "lodash.debounce": "^4.0.3",
     "normalize.css": "^4.0.0"
   },
