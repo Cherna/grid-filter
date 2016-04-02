@@ -9,6 +9,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jquery": "^2.2.2"
+    "jquery": "^2.2.2",
+    "lodash.debounce": "^4.0.3",
+    "normalize.css": "^4.0.0"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-stylus": "^2.3.1",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
