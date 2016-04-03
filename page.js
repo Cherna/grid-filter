@@ -5,7 +5,23 @@ $(document).ready(function() {
     'container': 'first-table',
     'row': '.table-row',
     'matchContainer': '.name',
-    'matchText': ''
+    'matchText': '',
+    'wrapTag': 'b',
+    onReady: function() {
+      console.log('ready 1');
+    },
+    onInputChange: function(e) {
+      console.log('input event');
+    },
+    onSearchEmpty: function() {
+      console.log('empty search');
+    },
+    onSearchNonEmpty: function() {
+      console.log('non empty search')
+    },
+    onInputCleared: function(e) {
+      console.log('input cleared')
+    }
   });
 
   var secondFilter = new $.SimpleGridFilter({
@@ -13,7 +29,8 @@ $(document).ready(function() {
     'container': 'second-table',
     'row': '.table-row',
     'matchContainer': '.occupation',
-    'matchText': ''
+    'matchText': '',
+    'wrapTag': 'strong'
   });
 
 })

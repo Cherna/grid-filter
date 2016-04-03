@@ -1,8 +1,9 @@
 (function($) {
 
   // Big to-do list:
-  // - Callbacks
   // - Error reporting to console
+  // - Search in multiple fields
+  // - Toggle case sensitive
 
   function SimpleGridFilter (options) {
 
@@ -12,12 +13,41 @@
 
     this.opts = $.extend(defaults, options);
 
-    console.log(this.opts);
+    if (!this.opts.input) {
+      console.error('You need to specify an input selector.');
+    } else if (!this.opts.container) {
+      console.error('You need to specify a container selector.');
+    } else if (!this.opts.row) {
+      console.error('You need to specify a row selector.');
+    } else if (!this.opts.matchContainer) {
+      console.error('You need to specify a match container selector.');
+    }
 
     this.opts.container = '#' + this.opts.container;
     this.mainTable = $(this.opts.container);
     this.mainListItems = $(this.opts.container).find(this.opts.row);
     this.init(this.opts);
+
+    // onReady callback
+    if (this.opts.onReady && typeof this.opts.onReady === 'function') {
+      this.opts.onReady();
+    }
+
+    if (this.opts.onInputChange && typeof this.opts.onInputChange === 'function') {
+      this.inputFunction = true;
+    }
+
+    if (this.opts.onSearchEmpty && typeof this.opts.onSearchEmpty === 'function') {
+      this.onEmptyFunction = true;
+    }
+
+    if (this.opts.onSearchNonEmpty && typeof this.opts.onSearchNonEmpty === 'function') {
+      this.onNonEmptyFunction = true;
+    }
+
+    if (this.opts.onInputCleared && typeof this.opts.onInputCleared === 'function') {
+      this.inputClearFunction = true;
+    }
 
     return this;
   }
@@ -47,14 +77,21 @@
 
   SimpleGridFilter.prototype.initSearchInput = function (selector) {
     var self = this;
-    if (!selector) return;
     var $input = $(selector);
 
     $input.on('input', this.debounce(onInputEvent, this.opts.debounce) );
 
     function onInputEvent(e) {
       e.preventDefault();
+      if (self.inputFunction) {
+        self.opts.onInputChange(e);
+      }
       var currVal = $(e.target).val();
+
+      if (self.inputClearFunction && currVal === '') {
+        self.opts.onInputCleared(e);
+      }
+
       self.matchGridElements(currVal);
     }
   }
@@ -65,7 +102,9 @@
 
   SimpleGridFilter.prototype.matchGridElements = function (matcher) {
     var self = this;
+
     this.saveGridItems();
+
     var regExMatcher = new RegExp(matcher, 'i');
     var newListItems = self.mainListItems.filter(function(i, el) {
       var $el = $(el).find(self.opts.matchContainer);
@@ -79,11 +118,19 @@
       }
       return matched;
     });
+
     if (!newListItems.length) {
       // Callback to empty search
+      if (this.onEmptyFunction) {
+        this.opts.onSearchEmpty();
+      }
     } else {
       // Callback to non-empty search
+      if (this.onNonEmptyFunction) {
+        this.opts.onSearchNonEmpty();
+      }
     }
+
     this.mainListItems.detach();
     this.mainTable.append(newListItems);
   }
@@ -93,11 +140,7 @@
     var resLength = result[0].length;
     var resStartIndex = result.index;
     var resString = result.input;
-    return resString.replace(resMatch, '<strong>' + resMatch + '</strong>');
-  }
-
-  SimpleGridFilter.prototype.loadGrid = function () {
-    
+    return resString.replace(resMatch, '<' + this.opts.wrapTag + '>' + resMatch + '</' + this.opts.wrapTag + '>');
   }
 
   $.SimpleGridFilter = $.fn.SimpleGridFilter = SimpleGridFilter;
