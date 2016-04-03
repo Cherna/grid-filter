@@ -1,5 +1,8 @@
 (function($) {
 
+  // To do:
+  // - Filter more times with more inputs: First by name and then by occupation, for example
+
   function SimpleGridFilter (options) {
 
     var defaults = {
