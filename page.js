@@ -4,23 +4,24 @@ $(document).ready(function() {
     'input': '#first-example-input',
     'container': 'first-table',
     'row': '.table-row',
-    'matchContainer': '.name',
+    'matchContainer': ['.name', '.tel-number', '.occupation'],
     'matchText': '',
-    'wrapTag': 'b',
+    'wrapTag': '',
+    'caseSensitive': false,
     onReady: function() {
-      console.log('ready 1');
+      // console.log('ready 1');
     },
     onInputChange: function(e) {
-      console.log('input event');
+      // console.log('input event');
     },
     onSearchEmpty: function() {
-      console.log('empty search');
+      // console.log('empty search');
     },
     onSearchNonEmpty: function() {
-      console.log('non empty search')
+      // console.log('non empty search')
     },
     onInputCleared: function(e) {
-      console.log('input cleared')
+      // console.log('input cleared')
     }
   });
 

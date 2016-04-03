@@ -1,10 +1,5 @@
 (function($) {
 
-  // Big to-do list:
-  // - Error reporting to console
-  // - Search in multiple fields
-  // - Toggle case sensitive
-
   function SimpleGridFilter (options) {
 
     var defaults = {
@@ -102,21 +97,43 @@
 
   SimpleGridFilter.prototype.matchGridElements = function (matcher) {
     var self = this;
-
+    // Get new recollection of table items
     this.saveGridItems();
 
-    var regExMatcher = new RegExp(matcher, 'i');
+    var regExMatcher = new RegExp(matcher, this.opts.caseSensitive ? '' : 'i');
+
+    // Build new items based on matching
     var newListItems = self.mainListItems.filter(function(i, el) {
-      var $el = $(el).find(self.opts.matchContainer);
-      var matched = $el.text().trim().match(regExMatcher);
-      if (matched) {
-        if (self.opts.matchText) {
-          $el.find(matchText).html( self.highlightMatchedElement(matched) );
-        } else {
-          $el.html( self.highlightMatchedElement(matched) );
+      if ( self.opts.matchContainer.constructor === Array ) {
+        var selector = self.opts.matchContainer.join(', ');
+        var $els = $(el).find(selector);
+        var matches = [];
+        $els.each(function(i, el) {
+          var originalString = $(el).text().trim();
+          var match = originalString.match(regExMatcher);
+          if (match) {
+            $(el).html( self.highlightMatchedElement(match) );
+            matches.push(match);
+          } else {
+            // If theres no match then clear old matches in fields that don't match anymore
+            $(el).html( self.highlightMatchedElement(originalString) );
+          }
+        });
+
+        return matches.length;
+      } else {
+        var $el = $(el).find(self.opts.matchContainer);
+        var matched = $el.text().trim().match(regExMatcher);
+        if (matched) {
+          if (self.opts.matchText) {
+            $el.find(matchText).html( self.highlightMatchedElement(matched) );
+          } else {
+            $el.html( self.highlightMatchedElement(matched) );
+          }
         }
+
+        return matched;
       }
-      return matched;
     });
 
     if (!newListItems.length) {
@@ -136,11 +153,15 @@
   }
 
   SimpleGridFilter.prototype.highlightMatchedElement = function (result) {
+    if (typeof result === 'string') {
+      return result;
+    }
     var resMatch = result[0];
     var resLength = result[0].length;
     var resStartIndex = result.index;
     var resString = result.input;
-    return resString.replace(resMatch, '<' + this.opts.wrapTag + '>' + resMatch + '</' + this.opts.wrapTag + '>');
+    var wrapTag = this.opts.wrapTag ? this.opts.wrapTag : 'strong';
+    return resString.replace(resMatch, '<' + wrapTag + '>' + resMatch + '</' + wrapTag + '>');
   }
 
   $.SimpleGridFilter = $.fn.SimpleGridFilter = SimpleGridFilter;
