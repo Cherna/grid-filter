@@ -11,7 +11,7 @@ function SimpleGridFilter (options) {
     'debounce': 60
   }
 
-  this.opts = $.extend(defaults, options);
+  this.opts = this.extend(defaults, options);
 
   if (!this.opts.input) {
     console.error('You need to specify an input selector.');
@@ -61,6 +61,22 @@ SimpleGridFilter.prototype.init = function () {
 /*
  *  Helper functions
  */
+
+SimpleGridFilter.prototype.extend = function(out) {
+  out = out || {};
+
+  for (var i = 1; i < arguments.length; i++) {
+    if (!arguments[i])
+      continue;
+
+    for (var key in arguments[i]) {
+      if (arguments[i].hasOwnProperty(key))
+        out[key] = arguments[i][key];
+    }
+  }
+
+  return out;
+};
 
 SimpleGridFilter.prototype.makeArray = function (nonArr) {
   return [].slice.call(nonArr);
