@@ -1,5 +1,5 @@
-$(document).ready(function() {
-
+document.addEventListener('DOMContentLoaded', function() {
+  
   var firstFilter = new SimpleGridFilter({
     'input': '#first-example-input',
     'container': 'first-table',
@@ -34,4 +34,4 @@ $(document).ready(function() {
     'wrapTag': 'strong'
   });
 
-})
+});
