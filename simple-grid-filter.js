@@ -1,9 +1,15 @@
 // To do:
 // - Filter more times with more inputs: First by name and then by occupation, for example
 // - Add ignore symbols. For example, ignore '-' for a particular selector
-// - Cambiar funcionalidad por la siguiente: En vez de sacar y meter elementos, mostrarlos y esconderlos,
-// usando regex para matchear sus data-values (que se pueden setear al cargar la tabla). Usar una clase para
-// mostrarlos y esconderlos.
+
+/*
+ * Testing guide
+ *  - Input filter and all events work.
+ *  - If SPA leave section then come back and make sure:
+ *    - A) The input is blank,
+ *    - B) The onInputChange event hasn't been bound twice.
+ *  - If theres a form passed, it doesnt submit.
+ */
 
 function SimpleGridFilter (options) {
 
@@ -23,8 +29,11 @@ function SimpleGridFilter (options) {
     console.error('You need to specify a match container selector.');
   }
 
-  this.opts.container = '#' + this.opts.container;
-  this.mainTable = document.querySelectorAll(this.opts.container)[0];
+  this.opts.container = this.opts.container;
+  this.mainTable = document.getElementById(this.opts.container);
+  if (this.mainTable === null && !this.mainTable) {
+    console.error('No table markup available');
+  }
   this.mainListItems = this.makeArray( this.mainTable.querySelectorAll(this.opts.row) );
   this.init(this.opts);
 
@@ -53,8 +62,10 @@ function SimpleGridFilter (options) {
 }
 
 SimpleGridFilter.prototype.init = function () {
+  // To-do: Enable multiple inputs to multi-filter
   // console.log(this.opts.input.constructor);
   // if (this.opts.input.constructor === Array) {}
+  this.checkForBindFn();
   this.initSearchInput(this.opts.input);
 }
 
@@ -62,7 +73,34 @@ SimpleGridFilter.prototype.init = function () {
  *  Helper functions
  */
 
-SimpleGridFilter.prototype.extend = function(out) {
+SimpleGridFilter.prototype.checkForBindFn = function () {
+  if (!Function.prototype.bind) {
+    Function.prototype.bind = function(oThis) {
+      if (typeof this !== 'function') {
+        // closest thing possible to the ECMAScript 5
+        // internal IsCallable function
+        throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+      }
+
+      var aArgs   = Array.prototype.slice.call(arguments, 1),
+          fToBind = this,
+          fNOP    = function() {},
+          fBound  = function() {
+            return fToBind.apply(this instanceof fNOP && oThis
+                   ? this
+                   : oThis,
+                   aArgs.concat(Array.prototype.slice.call(arguments)));
+          };
+
+      fNOP.prototype = this.prototype;
+      fBound.prototype = new fNOP();
+
+      return fBound;
+    };
+  }
+}
+
+SimpleGridFilter.prototype.extend = function (out) {
   out = out || {};
 
   for (var i = 1; i < arguments.length; i++) {
@@ -77,6 +115,13 @@ SimpleGridFilter.prototype.extend = function(out) {
 
   return out;
 };
+
+SimpleGridFilter.prototype.replaceWithClone = function (node) {
+  var oldElement = node;
+  var newElement = oldElement.cloneNode(true);
+  oldElement.parentNode.replaceChild(newElement, oldElement);
+  return newElement;
+}
 
 SimpleGridFilter.prototype.makeArray = function (nonArr) {
   return [].slice.call(nonArr);
@@ -117,24 +162,47 @@ SimpleGridFilter.prototype.debounce = function (func, wait, immediate) {
 };
 
 SimpleGridFilter.prototype.initSearchInput = function (selector) {
-  var self = this;
   var input = document.querySelector(selector);
 
-  input.addEventListener('input', this.debounce(onInputEvent, this.opts.debounce) );
-
-  function onInputEvent(e) {
-    e.preventDefault();
-    if (self.inputFunction) {
-      self.opts.onInputChange(e);
-    }
-    var currVal = e.target.value;
-
-    if (self.inputClearFunction && currVal === '') {
-      self.opts.onInputCleared(e);
-    }
-
-    self.matchGridElements(currVal);
+  if (!input) {
+    console.error('No input markup to work with');
+    return;
   }
+
+  // To-do: Save previous handlers in some way
+  // We need to make sure we're not binding the event more than once
+  // so we replace the node with a clone to remove all its listeners
+  input = this.replaceWithClone(input);
+
+  input.value = '';
+
+  // We need to bind the context to keep the this throughout the handler
+  input.addEventListener('input', this.debounce(this.onInputEvent, this.opts.debounce).bind(this), false);
+
+  if (this.opts.formSelector) {
+    this.containerForm = document.querySelector(this.opts.formSelector);
+
+    this.containerForm.addEventListener('submit', function(e) {
+      console.log('input trying to submit');
+      e.preventDefault();
+    })
+  }
+}
+
+SimpleGridFilter.prototype.onInputEvent = function (e) {
+  e.preventDefault();
+  var currVal = e.target.value;
+
+  // Trigger onInputChange fn
+  if (this.inputFunction) {
+    this.opts.onInputChange(currVal, e);
+  }
+  // Trigger onInputCleared fn
+  if (this.inputClearFunction && currVal === '') {
+    this.opts.onInputCleared(currVal, e);
+  }
+
+  this.matchGridElements(currVal);
 }
 
 SimpleGridFilter.prototype.saveGridItems = function() {
@@ -187,7 +255,7 @@ SimpleGridFilter.prototype.matchGridElements = function (matcher) {
 
 SimpleGridFilter.prototype.matchForArrays = function (element, selector) {
   var self = this;
-  var els = element.querySelectorAll(selector);
+  var els = this.makeArray( element.querySelectorAll(selector) );
   var matches = [];
   els.forEach(function(el) {
     var originalString = el.textContent.trim();
@@ -208,16 +276,13 @@ SimpleGridFilter.prototype.matchForElement = function (element) {
   var thisEl = element.querySelector(self.opts.matchContainer);
   var matched = thisEl.textContent.trim().match(self.regExMatcher);
   if (matched) {
-    if (self.opts.matchText) {
-      thisEl.find(matchText).innerHTML = self.highlightMatchedElement(matched);
-    } else {
-      thisEl.innerHTML = self.highlightMatchedElement(matched);
-    }
+    thisEl.innerHTML = self.highlightMatchedElement(matched);
   }
   return matched;
 }
 
 SimpleGridFilter.prototype.highlightMatchedElement = function (result) {
+  // Unless the result is actually an regex result array, return
   if (typeof result === 'string') {
     return result;
   }
