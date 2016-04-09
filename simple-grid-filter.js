@@ -132,6 +132,7 @@ SimpleGridFilter.prototype.showEl = function (el) {
   if (!el) return false;
 
   el.style.display = el.getAttribute('data-original-display') === 'no-display' ? '' : el.getAttribute('data-original-display');
+  el.removeAttribute('data-hidden');
 }
 
 SimpleGridFilter.prototype.hideEl = function (el) {
@@ -141,6 +142,7 @@ SimpleGridFilter.prototype.hideEl = function (el) {
     el.setAttribute('data-original-display', el.style.display ? el.style.display : 'no-display');
   }
   el.style.display = 'none';
+  el.setAttribute('data-hidden', true);
 }
 
 // Returns a function, that, as long as it continues to be invoked, will not
