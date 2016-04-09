@@ -31,13 +31,16 @@ function SimpleGridFilter (options) {
   }
 
   this.opts.container = this.opts.container;
+
   this.mainTable = document.getElementById(this.opts.container);
   if (this.mainTable === null && !this.mainTable) {
     console.error('No table markup available');
   }
+
   this.mainListItems = this.makeArray( this.mainTable.querySelectorAll(this.opts.row) );
   this.init(this.opts);
 
+  this.searchUnderway = false;
   
   if (this.opts.onReady && typeof this.opts.onReady === 'function') {
     this.opts.onReady();
@@ -64,10 +67,15 @@ function SimpleGridFilter (options) {
 
 SimpleGridFilter.prototype.init = function () {
   // To-do: Enable multiple inputs to multi-filter
-  // console.log(this.opts.input.constructor);
-  // if (this.opts.input.constructor === Array) {}
+  var self = this;
   this.checkForBindFn();
-  this.initSearchInput(this.opts.input);
+  if (this.opts.input.constructor === Array) {
+    this.opts.input.forEach(function(input) {
+      self.initSearchInput(input);
+    })
+  } else {
+    this.initSearchInput(this.opts.input);
+  }
 }
 
 /*
@@ -164,6 +172,29 @@ SimpleGridFilter.prototype.debounce = function (func, wait, immediate) {
   };
 };
 
+SimpleGridFilter.prototype.registerQuery = function (inputId, matcher) {
+  var inputRegistered = this.registeredQueries.filter(function(query) {
+    return query.inputId === inputId;
+  });
+
+  if (inputRegistered.length) {
+    // Update query
+    inputRegistered[0].matcher = matcher;
+  } else {
+    // Register a new query
+    this.registeredQueries.push({ inputId: inputId, matcher: matcher });
+  }
+
+  console.log(this.registeredQueries);
+}
+
+SimpleGridFilter.prototype.runQueries = function () {
+  var self = this;
+  this.registeredQueries.forEach(function(query) {
+    self.matchGridElements(query.matcher);
+  })
+}
+
 SimpleGridFilter.prototype.initSearchInput = function (selector) {
   var input = document.querySelector(selector);
 
@@ -171,6 +202,8 @@ SimpleGridFilter.prototype.initSearchInput = function (selector) {
     console.error('No input markup to work with');
     return;
   }
+
+  this.registeredQueries = [];
 
   // To-do: Save previous handlers in some way
   // We need to make sure we're not binding the event more than once
@@ -202,14 +235,24 @@ SimpleGridFilter.prototype.onInputEvent = function (e) {
   }
   // Trigger onInputCleared fn
   if (this.inputClearFunction && currVal === '') {
+    this.searchUnderway = false;
     this.opts.onInputCleared(currVal, e);
   }
 
-  this.matchGridElements(currVal);
+  // this.matchGridElements(currVal);
+  this.registerQuery(e.target.id, currVal);
+  // this.runQueries();
 }
 
 SimpleGridFilter.prototype.saveGridItems = function() {
+  // if (this.searchUnderway && this.changedInput) {
+  //   this.mainListItems = this.mainListItems.filter(function(el) {
+  //     return el.getAttribute('data-hidden');
+  //   });
+  //   console.log(this.mainListItems);
+  // } else {
   this.mainListItems = this.mainListItems.length ? this.mainListItems : this.makeArray( this.mainTable.querySelectorAll(this.opts.row) );
+  // }
 }
 
 SimpleGridFilter.prototype.matchGridElements = function (matcher) {
@@ -263,6 +306,8 @@ SimpleGridFilter.prototype.matchGridElements = function (matcher) {
     el.removeAttribute('data-to-show');
     self.showEl(el);
   });
+
+  this.lastInputId = this.currentInputId;
 }
 
 SimpleGridFilter.prototype.matchForArrays = function (element, selector) {

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   
   var firstFilter = new SimpleGridFilter({
-    'input': '#first-example-input',
+    'input': ['#first-example-input', '#first-example-second-input'],
     'container': 'first-table',
     'row': '.table-row',
     'matchContainer': ['.name', '.tel-number', '.occupation'],
