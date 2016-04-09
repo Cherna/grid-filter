@@ -1,14 +1,15 @@
 // To do:
 // - Filter more times with more inputs: First by name and then by occupation, for example
 // - Add ignore symbols. For example, ignore '-' for a particular selector
+// - Add built-in support for empty search notice ( { template: HTML string or node } )
 
 /*
- * Testing guide
+ * Testing tips:
  *  - Input filter and all events work.
+ *  - If theres a form passed, it doesn't submit.
  *  - If SPA leave section then come back and make sure:
  *    - A) The input is blank,
  *    - B) The onInputChange event hasn't been bound twice.
- *  - If theres a form passed, it doesnt submit.
  */
 
 function SimpleGridFilter (options) {
@@ -211,8 +212,15 @@ SimpleGridFilter.prototype.saveGridItems = function() {
 
 SimpleGridFilter.prototype.matchGridElements = function (matcher) {
   var self = this;
-  // Get new recollection of table items
+  // Refresh collection of table items
   this.saveGridItems();
+
+  // Catch exceptions in case user inputs special caracters ('\', '^')
+  try {
+    var newRegEx = new RegExp(matcher);
+  } catch (ex) {
+    return false;
+  }
 
   this.regExMatcher = new RegExp(matcher, this.opts.caseSensitive ? '' : 'i');
   var newListItems;
@@ -240,10 +248,12 @@ SimpleGridFilter.prototype.matchGridElements = function (matcher) {
     }
   }
 
+  // Set a flag on all items to show next
   newListItems.forEach(function(el) {
     el.setAttribute('data-to-show', true);
   });
 
+  // Hide everything, filter by flagged items and show them
   this.mainListItems.filter(function(el) {
     self.hideEl(el);
     return el.getAttribute('data-to-show');
