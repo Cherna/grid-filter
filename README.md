@@ -14,28 +14,40 @@ Include from somewhere somehow.
 
 ```
   var gridFilter = new GridFilter({
+
     input: '#main-input', // selector for input to initialize
+
     container: 'main-table', // id for main table (Must be an id)
+
     row: '.table-row', // selector for rows of table to query
+
     matchContainer: '.name', // selector for text containers to be queried
+
     wrapTag: 'b', // tag to wrap the matched text in
+
     caseSensitive: false, // flag to indicate if case-sensitive search should be enabled
+
     onReady: function() {
       console.log('Main grid filter is ready.');
     },
+
     onInputChange: function(val, e) {
       console.log('input event fired with ' + val + ' value.');
     },
+
     onSearchEmpty: function(val) {
       console.log('Search returned no results');
     },
+
     onSearchNonEmpty: function(results, val) {
       console.log('Search returned this results:');
       console.log(results);
     },
+
     onInputCleared: function(e) {
       console.log('input was cleared.');
     }
+
   });
 ```
 
@@ -43,7 +55,9 @@ Include from somewhere somehow.
 
 You can pass a single selector to query a single field:
 
-`matchContainer: '.name'`
+```
+  matchContainer: '.name'
+```
 
 Or pass an array to query multiple fields:
 
