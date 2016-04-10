@@ -63,9 +63,6 @@ function SimpleGridFilter (options) {
 }
 
 SimpleGridFilter.prototype.init = function () {
-  // To-do: Enable multiple inputs to multi-filter
-  // console.log(this.opts.input.constructor);
-  // if (this.opts.input.constructor === Array) {}
   this.checkForBindFn();
   this.initSearchInput(this.opts.input);
 }
@@ -124,6 +121,7 @@ SimpleGridFilter.prototype.replaceWithClone = function (node) {
   return newElement;
 }
 
+// Needed to use Array methods in NodeLists
 SimpleGridFilter.prototype.makeArray = function (nonArr) {
   return [].slice.call(nonArr);
 }
@@ -163,6 +161,10 @@ SimpleGridFilter.prototype.debounce = function (func, wait, immediate) {
     if (callNow) func.apply(context, args);
   };
 };
+
+/*
+ *  Init and main functionality
+ */
 
 SimpleGridFilter.prototype.initSearchInput = function (selector) {
   var input = document.querySelector(selector);
@@ -241,12 +243,12 @@ SimpleGridFilter.prototype.matchGridElements = function (matcher) {
   if (!newListItems.length) {
     // Callback to empty search
     if (this.onEmptyFunction) {
-      this.opts.onSearchEmpty();
+      this.opts.onSearchEmpty(matcher);
     }
   } else {
     // Callback to non-empty search
     if (this.onNonEmptyFunction) {
-      this.opts.onSearchNonEmpty();
+      this.opts.onSearchNonEmpty(newListItems, matcher);
     }
   }
 

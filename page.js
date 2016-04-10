@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     'container': 'first-table',
     'row': '.table-row',
     'matchContainer': ['.name', '.tel-number', '.occupation'],
-    'matchText': '',
     'wrapTag': '',
     'caseSensitive': false,
     onReady: function() {
