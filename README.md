@@ -1,4 +1,4 @@
-# Grid-Filter
+# Grid Filter
 
 A simple vanilla JS library to filter a grid based on a typed user input.
 
