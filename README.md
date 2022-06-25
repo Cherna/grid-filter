@@ -2,7 +2,7 @@
 
 A simple vanilla JS library to filter a grid based on a typed user input.
 
-For a quick view, see the [Demo Page](http://cherna.github.io/simple-grid-filtering/).
+For a quick view, see the [Demo Page](http://cherna.github.io/grid-filter/).
 
 ## Usage
 
